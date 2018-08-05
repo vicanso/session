@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	defaultCookieKey = "sess"
+	defaultCookieName = "sess"
 	// CreatedAt the created time for session
 	CreatedAt = "_createdAt"
 	// UpdatedAt the updated time for session
@@ -41,12 +41,14 @@ type (
 	Options struct {
 		// cookie key, default is sess
 		Key string
+		// the cookie value's prefix
+		CookiePrefix string
 		// the max age for session data
 		MaxAge int
 		// the session store
 		Store Store
 		// function to generate session id
-		GenID func() string
+		GenID func(string) string
 		// key list for keygrip
 		CookieKeys []string
 		// cookie path
@@ -77,6 +79,8 @@ type (
 		fetched bool
 		// the data has been modified
 		modified bool
+		// the sesion has been commited
+		commited bool
 	}
 )
 
@@ -87,6 +91,16 @@ func getInitJSON() []byte {
 	return buf
 }
 
+// getCookieName get the cookie's name
+func (sess *Session) getCookieName() string {
+	opts := sess.opts
+	cookieName := opts.Key
+	if cookieName == "" {
+		cookieName = defaultCookieName
+	}
+	return cookieName
+}
+
 // Fetch fetch the session data from store
 func (sess *Session) Fetch() (m M, err error) {
 	if sess.fetched {
@@ -94,12 +108,9 @@ func (sess *Session) Fetch() (m M, err error) {
 		return
 	}
 	opts := sess.opts
-	cookieKey := opts.Key
-	if cookieKey == "" {
-		cookieKey = defaultCookieKey
-	}
+	cookieName := sess.getCookieName()
 
-	value := sess.cookies.Get(cookieKey, sess.signed)
+	value := sess.cookies.Get(cookieName, sess.signed)
 	var buf []byte
 	if value != "" {
 		sess.cookieValue = value
@@ -136,6 +147,69 @@ func (sess *Session) Set(key string, value interface{}) (err error) {
 	}
 	sess.data[UpdatedAt] = time.Now().Format(time.RFC3339)
 	sess.modified = true
+	return
+}
+
+// Get get data from session's data
+func (sess *Session) Get(key string) interface{} {
+	if !sess.fetched {
+		return nil
+	}
+	return sess.data[key]
+}
+
+// GetCreatedAt get the created at of session
+func (sess *Session) GetCreatedAt() string {
+	if !sess.fetched {
+		return ""
+	}
+	v := sess.data[CreatedAt]
+	if v == nil {
+		return ""
+	}
+	return v.(string)
+}
+
+// GetUpdatedAt get the updated at of session
+func (sess *Session) GetUpdatedAt() string {
+	if !sess.fetched {
+		return ""
+	}
+	v := sess.data[UpdatedAt]
+	if v == nil {
+		return ""
+	}
+	return v.(string)
+}
+
+// Commit sync the session to store
+func (sess *Session) Commit() (err error) {
+	if !sess.modified || sess.commited {
+		return
+	}
+	opts := sess.opts
+	// not cookie value, create and set cookie
+	id := sess.cookieValue
+	if id == "" {
+		if opts.GenID != nil {
+			id = opts.GenID(opts.CookiePrefix)
+		} else {
+			id = generateID(opts.CookiePrefix)
+		}
+		sess.cookieValue = id
+		cookieName := sess.getCookieName()
+		cookie := sess.cookies.CreateCookie(cookieName, id)
+		sess.cookies.Set(cookie, sess.signed)
+	}
+	buf, err := json.Marshal(sess.data)
+	if err != nil {
+		return
+	}
+	err = opts.Store.Set(id, buf, opts.MaxAge)
+	if err != nil {
+		return
+	}
+	sess.commited = true
 	return
 }
 
