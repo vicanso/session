@@ -41,14 +41,14 @@ type (
 	Options struct {
 		// cookie key, default is sess
 		Key string
-		// the cookie value's prefix
-		CookiePrefix string
 		// the max age for session data
 		MaxAge int
 		// the session store
 		Store Store
 		// function to generate session id
 		GenID func(string) string
+		// the cookie value's prefix
+		CookiePrefix string
 		// key list for keygrip
 		CookieKeys []string
 		// cookie path
