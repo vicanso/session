@@ -8,6 +8,7 @@ import (
 
 	jsoniter "github.com/json-iterator/go"
 	"github.com/oklog/ulid"
+	"github.com/spf13/cast"
 	"github.com/vicanso/cookies"
 )
 
@@ -156,6 +157,46 @@ func (sess *Session) Get(key string) interface{} {
 		return nil
 	}
 	return sess.data[key]
+}
+
+// GetBool get bool data from session's data
+func (sess *Session) GetBool(key string) bool {
+	if !sess.fetched {
+		return false
+	}
+	return cast.ToBool(sess.data[key])
+}
+
+// GetString get string data from session's data
+func (sess *Session) GetString(key string) string {
+	if !sess.fetched {
+		return ""
+	}
+	return cast.ToString(sess.data[key])
+}
+
+// GetInt get int data from session's data
+func (sess *Session) GetInt(key string) int {
+	if !sess.fetched {
+		return 0
+	}
+	return cast.ToInt(sess.data[key])
+}
+
+// GetFloat64 get float64 data from session's data
+func (sess *Session) GetFloat64(key string) float64 {
+	if !sess.fetched {
+		return 0
+	}
+	return cast.ToFloat64(sess.data[key])
+}
+
+// GetStringSlice get string slice data from session's data
+func (sess *Session) GetStringSlice(key string) []string {
+	if !sess.fetched {
+		return nil
+	}
+	return cast.ToStringSlice(sess.data[key])
 }
 
 // GetCreatedAt get the created at of session

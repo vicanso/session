@@ -51,6 +51,14 @@
   version = "v1.0.0"
 
 [[projects]]
+  digest = "1:516e71bed754268937f57d4ecb190e01958452336fa73dbac880894164e91c1f"
+  name = "github.com/spf13/cast"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "8965335b8c7107321228e3e3702cab9832751bac"
+  version = "v1.2.0"
+
+[[projects]]
   branch = "master"
   digest = "1:edb854a11936244d5a7fd81722664265afb55fffaf20f79b6e7e3d15edaf81b7"
   name = "github.com/vicanso/cookies"
@@ -73,7 +81,9 @@
     "github.com/go-redis/redis",
     "github.com/json-iterator/go",
     "github.com/oklog/ulid",
+    "github.com/spf13/cast",
     "github.com/vicanso/cookies",
+    "github.com/vicanso/keygrip",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1

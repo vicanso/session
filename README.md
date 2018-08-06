@@ -1,5 +1,7 @@
 # session
 
+[![Build Status](https://img.shields.io/travis/vicanso/session.svg?label=linux+build)](https://travis-ci.org/vicanso/session)
+
 session for golang, it can use signed cookie by keygrip.
 
 ## API
@@ -58,11 +60,52 @@ err := sess.Set("name", "tree.xie")
 
 #### Get(key string)
 
-Get the data for session, if `Fetch` isn't called, it will return `nil`.
+Get the data from session, if `Fetch` isn't called, it will return `nil`.
 
 ```go
 i := sess.Get("name")
 ```
+
+#### GetBool(key string)
+
+Get the bool data from session.
+
+```go
+exitst := sess.GetBool("exists")
+```
+
+#### GetString(key string)
+
+Get the string data from session.
+
+```go
+name := sess.GetBool("name")
+```
+
+#### GetInt(key string) 
+
+Get the int data from session.
+
+```go
+age := sess.GetInt("age")
+```
+
+#### GetFloat64(key string)
+
+Get the float64 data from session.
+
+```go
+count := sess.GetFloat64("count")
+```
+
+#### GetStringSlice(key string)
+
+Get the string slice from session.
+
+```go
+category := sess.GetStringSlice("category")
+```
+
 
 #### GetCreatedAt
 

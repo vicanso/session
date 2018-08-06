@@ -251,4 +251,46 @@ func TestSession(t *testing.T) {
 			t.Fatalf("get session from store should not be nil")
 		}
 	})
+
+	t.Run("session get(type) function", func(t *testing.T) {
+		r := httptest.NewRequest(http.MethodGet, "http://aslant.site/api/users/me", nil)
+		w := httptest.NewRecorder()
+		sess := New(r, w, &Options{
+			Store:      store,
+			CookieKeys: keys,
+		})
+		_, err := sess.Fetch()
+		if err != nil {
+			t.Fatalf("fetch sesion fail, %v", err)
+		}
+		sess.data = M{
+			"exists": true,
+			"name":   "tree.xie",
+			"age":    30,
+			"count":  10.1,
+			"category": []string{
+				"a",
+				"b",
+			},
+		}
+		if !sess.GetBool("exists") {
+			t.Fatalf("get bool data fail")
+		}
+
+		if sess.GetString("name") != "tree.xie" {
+			t.Fatalf("get string data fail")
+		}
+
+		if sess.GetInt("age") != 30 {
+			t.Fatalf("get int data fail")
+		}
+
+		if sess.GetFloat64("count") != 10.1 {
+			t.Fatalf("get float64 data fail")
+		}
+
+		if strings.Join(sess.GetStringSlice("category"), ",") != "a,b" {
+			t.Fatalf("get string slice fail")
+		}
+	})
 }
