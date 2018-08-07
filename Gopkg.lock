@@ -19,12 +19,12 @@
   version = "v6.13.2"
 
 [[projects]]
-  digest = "1:eaefc85d32c03e5f0c2b88ea2f79fce3d993e2c78316d21319575dd4ea9153ca"
+  digest = "1:3e551bbb3a7c0ab2a2bf4660e7fcad16db089fdcfbb44b0199e62838038623ea"
   name = "github.com/json-iterator/go"
   packages = ["."]
   pruneopts = "UT"
-  revision = "ab8a2e0c74be9d3be70b3184d9acc634935ded82"
-  version = "1.1.4"
+  revision = "1624edc4454b8682399def8740d46db5e4362ba4"
+  version = "1.1.5"
 
 [[projects]]
   digest = "1:33422d238f147d247752996a26574ac48dcf472976eda7f5134015f06bf16563"
@@ -59,20 +59,20 @@
   version = "v1.2.0"
 
 [[projects]]
-  branch = "master"
-  digest = "1:edb854a11936244d5a7fd81722664265afb55fffaf20f79b6e7e3d15edaf81b7"
+  digest = "1:61a4f4682a0b891a759f46c6a0bfa25a23cf66981589cab5b6f8d115efb9da5e"
   name = "github.com/vicanso/cookies"
   packages = ["."]
   pruneopts = "UT"
-  revision = "bac56172448faf3996f13c68f06911ab3e03336d"
+  revision = "b1e952a2c347974b5b6b1992479fdbafabca9a30"
+  version = "0.0.1"
 
 [[projects]]
-  branch = "master"
   digest = "1:e759bd83c7fc27e37dea6c0840012506bda8192ae33415ad4011c53ecb76d1a2"
   name = "github.com/vicanso/keygrip"
   packages = ["."]
   pruneopts = "UT"
   revision = "c7f2aa0ccee39d13ad838e4d619997b0aa401f43"
+  version = "0.0.1"
 
 [solve-meta]
   analyzer-name = "dep"
