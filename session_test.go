@@ -259,6 +259,10 @@ func TestSession(t *testing.T) {
 			Store:      store,
 			CookieKeys: keys,
 		})
+		// before fetch
+		if sess.GetBool("exists") || sess.GetString("name") != "" || sess.GetInt("age") != 0 || sess.GetFloat64("count") != 0 || sess.GetStringSlice("category") != nil {
+			t.Fatalf("get data before fetch fail")
+		}
 		_, err := sess.Fetch()
 		if err != nil {
 			t.Fatalf("fetch sesion fail, %v", err)

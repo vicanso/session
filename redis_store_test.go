@@ -14,6 +14,16 @@ func TestRedisStore(t *testing.T) {
 	rs := NewRedisStore(nil, &redis.Options{
 		Addr: "localhost:6379",
 	})
+	t.Run("new redis store", func(t *testing.T) {
+		client := redis.NewClient(&redis.Options{
+			Addr: "localhost:6379",
+		})
+		NewRedisStore(client, nil)
+
+		NewRedisStore(nil, &redis.Options{
+			Addr: "localhost:6379",
+		})
+	})
 	t.Run("get not exists data", func(t *testing.T) {
 		buf, err := rs.Get(key)
 		if err != nil || len(buf) != 0 {
