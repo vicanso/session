@@ -186,6 +186,14 @@ func TestSession(t *testing.T) {
 		if data[key] != value {
 			t.Fatalf("get data from session fail, after set")
 		}
+		err = sess.Set(key, nil)
+		if err != nil {
+			t.Fatalf("set session fail, %v", err)
+		}
+		data, _ = sess.Fetch()
+		if data[key] != nil {
+			t.Fatalf("set data to nil should remove it")
+		}
 	})
 
 	t.Run("get created/updated at", func(t *testing.T) {
@@ -295,6 +303,57 @@ func TestSession(t *testing.T) {
 
 		if strings.Join(sess.GetStringSlice("category"), ",") != "a,b" {
 			t.Fatalf("get string slice fail")
+		}
+	})
+
+	t.Run("destroy session", func(t *testing.T) {
+		kg := keygrip.New(keys)
+		cookieValue := generateID("")
+		cookie := &http.Cookie{
+			Name:  defaultCookieName,
+			Value: cookieValue,
+		}
+		sigCookie := &http.Cookie{
+			Name:  defaultCookieName + ".sig",
+			Value: kg.Sign(defaultCookieName + "=" + cookieValue),
+		}
+		myName := "tree.xie"
+		buf, _ := json.Marshal(map[string]interface{}{
+			"name": myName,
+		})
+		store.Set(cookieValue, buf, 60)
+		r := httptest.NewRequest(http.MethodGet, "http://aslant.site/api/users/me", nil)
+		r.AddCookie(cookie)
+		r.AddCookie(sigCookie)
+		w := httptest.NewRecorder()
+		sess := New(r, w, &Options{
+			Store:      store,
+			CookieKeys: keys,
+		})
+		data, err := sess.Fetch()
+		if err != nil {
+			t.Fatalf("fetch session fail, %v", err)
+		}
+		if data["name"].(string) != myName {
+			t.Fatalf("fetch session fail")
+		}
+		err = sess.Destroy()
+		if err != nil {
+			t.Fatalf("destroy session fail, %v", err)
+		}
+		buf, err = store.Get(cookieValue)
+		if err != nil {
+			t.Fatalf("get data from store fail, %v", err)
+		}
+		if len(buf) != 0 {
+			t.Fatalf("the store data should be remove")
+		}
+		data, err = sess.Fetch()
+		if err != nil {
+			t.Fatalf("fetch session fail after destroy, %v", err)
+		}
+		if len(data) != 1 {
+			t.Fatalf("the session data should be inited after destroy")
 		}
 	})
 }

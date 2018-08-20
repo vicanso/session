@@ -152,6 +152,13 @@ if err != nil {
 }
 ```
 
+#### Destroy
+
+Remove the data from store and reset session data
+
+```go
+err := sess.Destroy()
+```
 
 ## test
 

@@ -102,6 +102,13 @@ func (sess *Session) getCookieName() string {
 	return cookieName
 }
 
+// getCookieValue get the cookie's value
+func (sess *Session) getCookieValue() string {
+	cookieName := sess.getCookieName()
+
+	return sess.cookies.Get(cookieName, sess.signed)
+}
+
 // Fetch fetch the session data from store
 func (sess *Session) Fetch() (m M, err error) {
 	if sess.fetched {
@@ -109,9 +116,8 @@ func (sess *Session) Fetch() (m M, err error) {
 		return
 	}
 	opts := sess.opts
-	cookieName := sess.getCookieName()
 
-	value := sess.cookies.Get(cookieName, sess.signed)
+	value := sess.getCookieValue()
 	var buf []byte
 	if value != "" {
 		sess.cookieValue = value
@@ -129,6 +135,27 @@ func (sess *Session) Fetch() (m M, err error) {
 		return
 	}
 	sess.fetched = true
+	sess.data = m
+	return
+}
+
+// Destroy remove the data from store and reset session data
+func (sess *Session) Destroy() (err error) {
+	opts := sess.opts
+	value := sess.getCookieValue()
+	if value == "" {
+		return
+	}
+	err = opts.Store.Destroy(value)
+	if err != nil {
+		return
+	}
+	buf := getInitJSON()
+	m := make(M)
+	err = json.Unmarshal(buf, &m)
+	if err != nil {
+		return
+	}
 	sess.data = m
 	return
 }
@@ -232,11 +259,11 @@ func (sess *Session) Commit() (err error) {
 	// not cookie value, create and set cookie
 	id := sess.cookieValue
 	if id == "" {
-		if opts.GenID != nil {
-			id = opts.GenID(opts.CookiePrefix)
-		} else {
-			id = generateID(opts.CookiePrefix)
+		fn := opts.GenID
+		if fn == nil {
+			fn = generateID
 		}
+		id = fn(opts.CookiePrefix)
 		sess.cookieValue = id
 		cookieName := sess.getCookieName()
 		cookie := sess.cookies.CreateCookie(cookieName, id)
