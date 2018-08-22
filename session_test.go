@@ -356,4 +356,25 @@ func TestSession(t *testing.T) {
 			t.Fatalf("the session data should be inited after destroy")
 		}
 	})
+
+	t.Run("mock", func(t *testing.T) {
+		m := make(M)
+		m["fetched"] = true
+		m["modified"] = true
+		m["commited"] = true
+		m["signed"] = true
+		m["cookieValue"] = "a"
+		data := M{}
+		data["a"] = 1
+		m["data"] = data
+		sess := Mock(m)
+		if !sess.fetched ||
+			!sess.modified ||
+			!sess.commited ||
+			!sess.signed ||
+			sess.cookieValue != "a" ||
+			sess.data == nil {
+			t.Fatalf("session mock fail")
+		}
+	})
 }

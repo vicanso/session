@@ -85,6 +85,28 @@ type (
 	}
 )
 
+// Mock mock a session
+func Mock(data M) *Session {
+	sess := &Session{}
+	for k, v := range data {
+		switch k {
+		case "fetched":
+			sess.fetched = v.(bool)
+		case "modified":
+			sess.modified = v.(bool)
+		case "commited":
+			sess.commited = v.(bool)
+		case "signed":
+			sess.signed = v.(bool)
+		case "cookieValue":
+			sess.cookieValue = v.(string)
+		case "data":
+			sess.data = v.(M)
+		}
+	}
+	return sess
+}
+
 func getInitJSON() []byte {
 	m := M{}
 	m[CreatedAt] = time.Now().Format(time.RFC3339)
