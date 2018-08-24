@@ -377,4 +377,21 @@ func TestSession(t *testing.T) {
 			t.Fatalf("session mock fail")
 		}
 	})
+
+	t.Run("refresh", func(t *testing.T) {
+		sess := Mock(M{
+			"fetched": true,
+			"data":    M{},
+		})
+		if sess.GetUpdatedAt() != "" {
+			t.Fatalf("session updated at should be empty")
+		}
+		err := sess.Refresh()
+		if err != nil {
+			t.Fatalf("refresh fail, %v", err)
+		}
+		if sess.GetUpdatedAt() == "" {
+			t.Fatalf("session updated at should not be empty after refresh")
+		}
+	})
 }

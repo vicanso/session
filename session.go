@@ -200,6 +200,16 @@ func (sess *Session) Set(key string, value interface{}) (err error) {
 	return
 }
 
+// Refresh refresh session (update updatedAt)
+func (sess *Session) Refresh() (err error) {
+	if !sess.fetched {
+		return ErrNotFetched
+	}
+	sess.data[UpdatedAt] = time.Now().Format(time.RFC3339)
+	sess.modified = true
+	return
+}
+
 // Get get data from session's data
 func (sess *Session) Get(key string) interface{} {
 	if !sess.fetched {
