@@ -48,6 +48,14 @@ Fetch the session data from redis
 data, err := sess.Fetch()
 ```
 
+#### Refresh()
+
+Refresh the session, it just change the updatedAt of session. The function should be called after `Fetch`.
+
+```go
+err := sess.Refresh()
+```
+
 #### Set(key string, value interface{})
 
 Set the data to session, if `Fetch` isn't called, `ErrNotFetched` will return.
