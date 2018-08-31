@@ -66,6 +66,16 @@ The key `UpdatedAt` will be set to date string of `now` when `Set` call succeed.
 err := sess.Set("name", "tree.xie")
 ```
 
+#### SetMap(value map[string]interface{})
+
+```go
+err := sess.Set(map[string]interface{}{
+  "a": 1,
+  "b": "2",
+  "c": true,
+})
+```
+
 #### Get(key string)
 
 Get the data from session, if `Fetch` isn't called, it will return `nil`.

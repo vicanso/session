@@ -196,6 +196,39 @@ func TestSession(t *testing.T) {
 		}
 	})
 
+	t.Run("set map data", func(t *testing.T) {
+		r := httptest.NewRequest(http.MethodGet, "http://aslant.site/api/users/me", nil)
+		w := httptest.NewRecorder()
+		sess := New(r, w, &Options{
+			Store:      store,
+			CookieKeys: keys,
+		})
+		key := "name"
+		value := "tree.xie"
+		err := sess.Set(key, value)
+		if err != ErrNotFetched {
+			t.Fatalf("the session should fetch before set")
+		}
+		sess.Fetch()
+		err = sess.SetMap(nil)
+		if err != nil {
+			t.Fatalf("set nil data fail, %v", err)
+		}
+		err = sess.SetMap(map[string]interface{}{
+			"a": 1,
+			"b": "2",
+			"c": true,
+		})
+		if err != nil {
+			t.Fatalf("set map data fail, %v", err)
+		}
+		if sess.GetInt("a") != 1 ||
+			sess.GetString("b") != "2" ||
+			!sess.GetBool("c") {
+			t.Fatalf("set map data fail")
+		}
+	})
+
 	t.Run("get created/updated at", func(t *testing.T) {
 		r := httptest.NewRequest(http.MethodGet, "http://aslant.site/api/users/me", nil)
 		w := httptest.NewRecorder()

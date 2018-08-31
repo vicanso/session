@@ -200,6 +200,23 @@ func (sess *Session) Set(key string, value interface{}) (err error) {
 	return
 }
 
+// SetMap set map data to session
+func (sess *Session) SetMap(value map[string]interface{}) (err error) {
+	if value == nil {
+		return
+	}
+	if !sess.fetched {
+		return ErrNotFetched
+	}
+	for k, v := range value {
+		sess.data[k] = v
+	}
+
+	sess.data[UpdatedAt] = time.Now().Format(time.RFC3339)
+	sess.modified = true
+	return
+}
+
 // Refresh refresh session (update updatedAt)
 func (sess *Session) Refresh() (err error) {
 	if !sess.fetched {
