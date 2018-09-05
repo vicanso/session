@@ -2,6 +2,7 @@ package session
 
 import (
 	"bytes"
+	"fmt"
 	"testing"
 )
 
@@ -56,6 +57,21 @@ func TestMemoryStore(t *testing.T) {
 		buf, err := ms.Get(key)
 		if err != nil || len(buf) != 0 {
 			t.Fatalf("shoud return empty bytes after destroy")
+		}
+	})
+
+	t.Run("expired", func(t *testing.T) {
+		err := ms.Set(key, data, -100)
+		if err != nil {
+			t.Fatalf("set data fail, %v", err)
+		}
+		buf, err := ms.Get(key)
+		if err != nil {
+			t.Fatalf("get data fail after set, %v", err)
+		}
+		fmt.Println(buf)
+		if len(buf) != 0 {
+			t.Fatalf("expired data should be nil")
 		}
 	})
 }
