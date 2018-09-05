@@ -40,6 +40,18 @@ sess := New(r, w, &Options{
 })
 ```
 
+```go
+store, _ := NewMemoryStore(10240)
+r := httptest.NewRequest(http.MethodGet, "http://aslant.site/api/users/me", nil)
+w := httptest.NewRecorder()
+sess := New(r, w, &Options{
+  Store: store,
+  CookieKeys: []string{
+    "tree.xie",
+  }
+})
+```
+
 #### Fetch()
 
 Fetch the session data from redis
