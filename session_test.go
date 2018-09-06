@@ -215,6 +215,7 @@ func TestSession(t *testing.T) {
 			t.Fatalf("set nil data fail, %v", err)
 		}
 		err = sess.SetMap(map[string]interface{}{
+			"1": nil,
 			"a": 1,
 			"b": "2",
 			"c": true,
@@ -425,6 +426,19 @@ func TestSession(t *testing.T) {
 		}
 		if sess.GetUpdatedAt() == "" {
 			t.Fatalf("session updated at should not be empty after refresh")
+		}
+	})
+
+	t.Run("get data", func(t *testing.T) {
+		sess := Mock(M{
+			"fetched": true,
+			"data": M{
+				"account": "vicanso",
+			},
+		})
+		data := sess.GetData()
+		if data["account"] != "vicanso" {
+			t.Fatalf("get data fail")
 		}
 	})
 }

@@ -209,6 +209,10 @@ func (sess *Session) SetMap(value map[string]interface{}) (err error) {
 		return ErrNotFetched
 	}
 	for k, v := range value {
+		if v == nil {
+			delete(sess.data, k)
+			continue
+		}
 		sess.data[k] = v
 	}
 
@@ -328,6 +332,11 @@ func (sess *Session) Commit() (err error) {
 	}
 	sess.commited = true
 	return
+}
+
+// GetData get the session's data
+func (sess *Session) GetData() M {
+	return sess.data
 }
 
 // generateID gen id
