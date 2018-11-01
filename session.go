@@ -310,28 +310,36 @@ func (sess *Session) Commit() (err error) {
 	}
 	opts := sess.opts
 	// not cookie value, create and set cookie
-	id := sess.cookieValue
-	if id == "" {
-		fn := opts.GenID
-		if fn == nil {
-			fn = generateID
-		}
-		id = fn(opts.CookiePrefix)
-		sess.cookieValue = id
-		cookieName := sess.getCookieName()
-		cookie := sess.cookies.CreateCookie(cookieName, id)
-		sess.cookies.Set(cookie, sess.signed)
+	if sess.cookieValue == "" {
+		sess.RegenerateCookie()
 	}
 	buf, err := json.Marshal(sess.data)
 	if err != nil {
 		return
 	}
-	err = opts.Store.Set(id, buf, opts.MaxAge)
+	err = opts.Store.Set(sess.cookieValue, buf, opts.MaxAge)
 	if err != nil {
 		return
 	}
 	sess.commited = true
 	return
+}
+
+// RegenerateCookie regenerate the session's cookie
+func (sess *Session) RegenerateCookie() {
+	if sess.commited {
+		return
+	}
+	opts := sess.opts
+	fn := opts.GenID
+	if fn == nil {
+		fn = generateID
+	}
+	id := fn(opts.CookiePrefix)
+	sess.cookieValue = id
+	cookieName := sess.getCookieName()
+	cookie := sess.cookies.CreateCookie(cookieName, id)
+	sess.cookies.Set(cookie, sess.signed)
 }
 
 // GetData get the session's data

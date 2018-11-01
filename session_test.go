@@ -284,6 +284,7 @@ func TestSession(t *testing.T) {
 		if len(values) != 2 {
 			t.Fatalf("first created session should set two cookies")
 		}
+
 		sessionID := strings.Split(values[0], "=")[1]
 		buf, err := store.Get(sessionID)
 		if err != nil {
@@ -291,6 +292,20 @@ func TestSession(t *testing.T) {
 		}
 		if len(buf) == 0 {
 			t.Fatalf("get session from store should not be nil")
+		}
+	})
+
+	t.Run("regenerate cookie", func(t *testing.T) {
+		r := httptest.NewRequest(http.MethodGet, "http://aslant.site/api/users/me", nil)
+		w := httptest.NewRecorder()
+		sess := New(r, w, &Options{
+			Store:      store,
+			CookieKeys: keys,
+		})
+		sess.RegenerateCookie()
+		values := w.HeaderMap["Set-Cookie"]
+		if len(values) == 0 {
+			t.Fatalf("regenerate cookie fail")
 		}
 	})
 
