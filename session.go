@@ -228,6 +228,10 @@ func (sess *Session) Refresh() (err error) {
 	}
 	sess.data[UpdatedAt] = time.Now().Format(time.RFC3339)
 	sess.modified = true
+	// 刷新cookie的max age
+	if sess.cookieValue != "" {
+		sess.addSessionCookie(sess.cookieValue)
+	}
 	return
 }
 
@@ -336,9 +340,13 @@ func (sess *Session) RegenerateCookie() {
 		fn = generateID
 	}
 	id := fn(opts.CookiePrefix)
-	sess.cookieValue = id
+	sess.addSessionCookie(id)
+}
+
+func (sess *Session) addSessionCookie(value string) {
+	sess.cookieValue = value
 	cookieName := sess.getCookieName()
-	cookie := sess.cookies.CreateCookie(cookieName, id)
+	cookie := sess.cookies.CreateCookie(cookieName, value)
 	sess.cookies.Set(cookie, sess.signed)
 }
 
