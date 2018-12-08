@@ -3,7 +3,6 @@ package session
 import (
 	"errors"
 	"math/rand"
-	"net/http"
 	"time"
 
 	jsoniter "github.com/json-iterator/go"
@@ -47,31 +46,14 @@ type (
 		// the session store
 		Store Store
 		// function to generate session id
-		GenID func(string) string
-		// the cookie value's prefix
-		CookiePrefix string
-		// key list for keygrip
-		CookieKeys []string
-		// cookie path
-		CookiePath string
-		// cookie domain
-		CookieDomain string
-		// cookie expires
-		CookieExpires time.Time
-		// cookie max age
-		CookieMaxAge int
-		// cookie secure
-		CookieSecure bool
-		// cookie http only
-		CookieHttpOnly bool
+		GenID         func() string
+		CookieOptions *cookies.Options
 	}
 	// Session session struct
 	Session struct {
-		Request  *http.Request
-		Response http.ResponseWriter
-		opts     *Options
-		cookies  *cookies.Cookies
-		signed   bool
+		opts    *Options
+		cookies *cookies.Cookies
+		signed  bool
 		// the session cookie value
 		cookieValue string
 		// the data fetch from session
@@ -339,7 +321,8 @@ func (sess *Session) RegenerateCookie() {
 	if fn == nil {
 		fn = generateID
 	}
-	id := fn(opts.CookiePrefix)
+	// id := fn(opts.CookiePrefix)
+	id := fn()
 	sess.addSessionCookie(id)
 }
 
@@ -356,32 +339,22 @@ func (sess *Session) GetData() M {
 }
 
 // generateID gen id
-func generateID(prefix string) string {
+func generateID() string {
 	t := time.Now()
 	entropy := rand.New(rand.NewSource(t.UnixNano()))
-	return prefix + ulid.MustNew(ulid.Timestamp(t), entropy).String()
+	return ulid.MustNew(ulid.Timestamp(t), entropy).String()
 }
 
 // New create a session instance
-func New(req *http.Request, res http.ResponseWriter, opts *Options) *Session {
+func New(rw cookies.ReadWriter, opts *Options) *Session {
 	if opts == nil || opts.Store == nil {
 		panic(errors.New("the options for session should not be nil"))
 	}
-	sess := &Session{
-		Request:  req,
-		Response: res,
-	}
+	sess := &Session{}
 	sess.opts = opts
-	sess.cookies = cookies.New(req, res, &cookies.Options{
-		Keys:     opts.CookieKeys,
-		Path:     opts.CookiePath,
-		Domain:   opts.CookieDomain,
-		Expires:  opts.CookieExpires,
-		MaxAge:   opts.CookieMaxAge,
-		Secure:   opts.CookieSecure,
-		HttpOnly: opts.CookieHttpOnly,
-	})
-	if len(opts.CookieKeys) != 0 {
+	cookieOptions := opts.CookieOptions
+	sess.cookies = cookies.New(rw, cookieOptions)
+	if cookieOptions != nil && len(cookieOptions.Keys) != 0 {
 		sess.signed = true
 	}
 	return sess

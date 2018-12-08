@@ -7,6 +7,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/vicanso/cookies"
+
 	"github.com/vicanso/keygrip"
 
 	"github.com/go-redis/redis"
@@ -23,10 +25,12 @@ func TestSession(t *testing.T) {
 	t.Run("fetch session when no cookies", func(t *testing.T) {
 		r := httptest.NewRequest(http.MethodGet, "http://aslant.site/api/users/me", nil)
 		w := httptest.NewRecorder()
-
-		sess := New(r, w, &Options{
-			Store:      store,
-			CookieKeys: keys,
+		rw := cookies.NewHTTPReadWriter(r, w)
+		sess := New(rw, &Options{
+			Store: store,
+			CookieOptions: &cookies.Options{
+				Keys: keys,
+			},
 		})
 		data, err := sess.Fetch()
 		if err != nil {
@@ -38,7 +42,7 @@ func TestSession(t *testing.T) {
 	})
 
 	t.Run("fetch session when cookie exists and not signed", func(t *testing.T) {
-		cookieValue := generateID("")
+		cookieValue := generateID()
 		cookie := &http.Cookie{
 			Name:  defaultCookieName,
 			Value: cookieValue,
@@ -51,7 +55,8 @@ func TestSession(t *testing.T) {
 		r := httptest.NewRequest(http.MethodGet, "http://aslant.site/api/users/me", nil)
 		r.AddCookie(cookie)
 		w := httptest.NewRecorder()
-		sess := New(r, w, &Options{
+		rw := cookies.NewHTTPReadWriter(r, w)
+		sess := New(rw, &Options{
 			Store: store,
 		})
 		data, err := sess.Fetch()
@@ -72,7 +77,7 @@ func TestSession(t *testing.T) {
 	})
 
 	t.Run("fetch empty session", func(t *testing.T) {
-		cookieValue := generateID("")
+		cookieValue := generateID()
 		cookie := &http.Cookie{
 			Name:  defaultCookieName,
 			Value: cookieValue,
@@ -80,7 +85,8 @@ func TestSession(t *testing.T) {
 		r := httptest.NewRequest(http.MethodGet, "http://aslant.site/api/users/me", nil)
 		r.AddCookie(cookie)
 		w := httptest.NewRecorder()
-		sess := New(r, w, &Options{
+		rw := cookies.NewHTTPReadWriter(r, w)
+		sess := New(rw, &Options{
 			Store: store,
 		})
 		data, err := sess.Fetch()
@@ -93,7 +99,7 @@ func TestSession(t *testing.T) {
 	})
 
 	t.Run("fetch session when cookie exists and signed incorrect", func(t *testing.T) {
-		cookieValue := generateID("")
+		cookieValue := generateID()
 		cookie := &http.Cookie{
 			Name:  defaultCookieName,
 			Value: cookieValue,
@@ -111,9 +117,12 @@ func TestSession(t *testing.T) {
 		r.AddCookie(cookie)
 		r.AddCookie(sigCookie)
 		w := httptest.NewRecorder()
-		sess := New(r, w, &Options{
-			Store:      store,
-			CookieKeys: keys,
+		rw := cookies.NewHTTPReadWriter(r, w)
+		sess := New(rw, &Options{
+			Store: store,
+			CookieOptions: &cookies.Options{
+				Keys: keys,
+			},
 		})
 		data, err := sess.Fetch()
 		if err != nil {
@@ -126,7 +135,7 @@ func TestSession(t *testing.T) {
 
 	t.Run("fetch session when cookie exists and signed correct", func(t *testing.T) {
 		kg := keygrip.New(keys)
-		cookieValue := generateID("")
+		cookieValue := generateID()
 		cookie := &http.Cookie{
 			Name:  defaultCookieName,
 			Value: cookieValue,
@@ -144,9 +153,12 @@ func TestSession(t *testing.T) {
 		r.AddCookie(cookie)
 		r.AddCookie(sigCookie)
 		w := httptest.NewRecorder()
-		sess := New(r, w, &Options{
-			Store:      store,
-			CookieKeys: keys,
+		rw := cookies.NewHTTPReadWriter(r, w)
+		sess := New(rw, &Options{
+			Store: store,
+			CookieOptions: &cookies.Options{
+				Keys: keys,
+			},
 		})
 		data, err := sess.Fetch()
 		if err != nil {
@@ -163,9 +175,12 @@ func TestSession(t *testing.T) {
 	t.Run("set session data", func(t *testing.T) {
 		r := httptest.NewRequest(http.MethodGet, "http://aslant.site/api/users/me", nil)
 		w := httptest.NewRecorder()
-		sess := New(r, w, &Options{
-			Store:      store,
-			CookieKeys: keys,
+		rw := cookies.NewHTTPReadWriter(r, w)
+		sess := New(rw, &Options{
+			Store: store,
+			CookieOptions: &cookies.Options{
+				Keys: keys,
+			},
 		})
 		err := sess.Set("", nil)
 		if err != nil {
@@ -199,9 +214,12 @@ func TestSession(t *testing.T) {
 	t.Run("set map data", func(t *testing.T) {
 		r := httptest.NewRequest(http.MethodGet, "http://aslant.site/api/users/me", nil)
 		w := httptest.NewRecorder()
-		sess := New(r, w, &Options{
-			Store:      store,
-			CookieKeys: keys,
+		rw := cookies.NewHTTPReadWriter(r, w)
+		sess := New(rw, &Options{
+			Store: store,
+			CookieOptions: &cookies.Options{
+				Keys: keys,
+			},
 		})
 		key := "name"
 		value := "tree.xie"
@@ -233,9 +251,12 @@ func TestSession(t *testing.T) {
 	t.Run("get created/updated at", func(t *testing.T) {
 		r := httptest.NewRequest(http.MethodGet, "http://aslant.site/api/users/me", nil)
 		w := httptest.NewRecorder()
-		sess := New(r, w, &Options{
-			Store:      store,
-			CookieKeys: keys,
+		rw := cookies.NewHTTPReadWriter(r, w)
+		sess := New(rw, &Options{
+			Store: store,
+			CookieOptions: &cookies.Options{
+				Keys: keys,
+			},
 		})
 		if sess.GetCreatedAt() != "" {
 			t.Fatalf("not fetch session's createdAt should return empty")
@@ -256,7 +277,7 @@ func TestSession(t *testing.T) {
 	})
 
 	t.Run("commit not modified session", func(t *testing.T) {
-		sess := New(nil, nil, &Options{
+		sess := New(nil, &Options{
 			Store: store,
 		})
 		if sess.Commit() != nil {
@@ -267,9 +288,12 @@ func TestSession(t *testing.T) {
 	t.Run("commit session first created", func(t *testing.T) {
 		r := httptest.NewRequest(http.MethodGet, "http://aslant.site/api/users/me", nil)
 		w := httptest.NewRecorder()
-		sess := New(r, w, &Options{
-			Store:      store,
-			CookieKeys: keys,
+		rw := cookies.NewHTTPReadWriter(r, w)
+		sess := New(rw, &Options{
+			Store: store,
+			CookieOptions: &cookies.Options{
+				Keys: keys,
+			},
 		})
 		_, err := sess.Fetch()
 		if err != nil {
@@ -298,9 +322,12 @@ func TestSession(t *testing.T) {
 	t.Run("regenerate cookie", func(t *testing.T) {
 		r := httptest.NewRequest(http.MethodGet, "http://aslant.site/api/users/me", nil)
 		w := httptest.NewRecorder()
-		sess := New(r, w, &Options{
-			Store:      store,
-			CookieKeys: keys,
+		rw := cookies.NewHTTPReadWriter(r, w)
+		sess := New(rw, &Options{
+			Store: store,
+			CookieOptions: &cookies.Options{
+				Keys: keys,
+			},
 		})
 		sess.RegenerateCookie()
 		values := w.HeaderMap["Set-Cookie"]
@@ -312,9 +339,12 @@ func TestSession(t *testing.T) {
 	t.Run("session get(type) function", func(t *testing.T) {
 		r := httptest.NewRequest(http.MethodGet, "http://aslant.site/api/users/me", nil)
 		w := httptest.NewRecorder()
-		sess := New(r, w, &Options{
-			Store:      store,
-			CookieKeys: keys,
+		rw := cookies.NewHTTPReadWriter(r, w)
+		sess := New(rw, &Options{
+			Store: store,
+			CookieOptions: &cookies.Options{
+				Keys: keys,
+			},
 		})
 		// before fetch
 		if sess.GetBool("exists") || sess.GetString("name") != "" || sess.GetInt("age") != 0 || sess.GetFloat64("count") != 0 || sess.GetStringSlice("category") != nil {
@@ -357,7 +387,7 @@ func TestSession(t *testing.T) {
 
 	t.Run("destroy session", func(t *testing.T) {
 		kg := keygrip.New(keys)
-		cookieValue := generateID("")
+		cookieValue := generateID()
 		cookie := &http.Cookie{
 			Name:  defaultCookieName,
 			Value: cookieValue,
@@ -375,9 +405,12 @@ func TestSession(t *testing.T) {
 		r.AddCookie(cookie)
 		r.AddCookie(sigCookie)
 		w := httptest.NewRecorder()
-		sess := New(r, w, &Options{
-			Store:      store,
-			CookieKeys: keys,
+		rw := cookies.NewHTTPReadWriter(r, w)
+		sess := New(rw, &Options{
+			Store: store,
+			CookieOptions: &cookies.Options{
+				Keys: keys,
+			},
 		})
 		data, err := sess.Fetch()
 		if err != nil {

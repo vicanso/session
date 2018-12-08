@@ -8,7 +8,7 @@ import (
 )
 
 func TestRedisStore(t *testing.T) {
-	key := generateID("")
+	key := generateID()
 	data := []byte("tree.xie")
 	ttl := 300
 	rs := NewRedisStore(nil, &redis.Options{

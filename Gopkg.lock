@@ -2,7 +2,7 @@
 
 
 [[projects]]
-  digest = "1:7c2fd446293ff7799cc496d3446e674ee67902d119f244de645caf95dff1bb98"
+  digest = "1:34a9a60fade37f8009ed4a19e02924198aba3eabfcc120ee5c6002b7de17212d"
   name = "github.com/go-redis/redis"
   packages = [
     ".",
@@ -15,8 +15,8 @@
     "internal/util",
   ]
   pruneopts = "UT"
-  revision = "f3bba01df2026fc865f7782948845db9cf44cf23"
-  version = "v6.14.1"
+  revision = "b3d9bf10f6666b2ee5100a6f3f84f4caf3b4e37d"
+  version = "v6.14.2"
 
 [[projects]]
   digest = "1:8ec8d88c248041a6df5f6574b87bc00e7e0b493881dad2e7ef47b11dc69093b5"
@@ -54,36 +54,36 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:ef9d6dc417798db2867654a8ecee38caa95da870db999202985718a9474e5c48"
+  digest = "1:4f5513cb656b73fb4c4f77ccd482c8366d6290278564d2b1d3285f45e45f4a1e"
   name = "github.com/oklog/ulid"
   packages = ["."]
   pruneopts = "UT"
-  revision = "8356aea91ceecc7d00ef87508040d1031adb2953"
-  version = "v1.0.0"
+  revision = "02a8604050d8466dd915307496174adb9be4593a"
+  version = "v1.3.1"
 
 [[projects]]
-  digest = "1:516e71bed754268937f57d4ecb190e01958452336fa73dbac880894164e91c1f"
+  digest = "1:08d65904057412fc0270fc4812a1c90c594186819243160dc779a402d4b6d0bc"
   name = "github.com/spf13/cast"
   packages = ["."]
   pruneopts = "UT"
-  revision = "8965335b8c7107321228e3e3702cab9832751bac"
-  version = "v1.2.0"
+  revision = "8c9545af88b134710ab1cd196795e7f2388358d7"
+  version = "v1.3.0"
 
 [[projects]]
-  digest = "1:7b2bdcba938b20deba5682640e1ad032ec1aac036652f5d82b1c2c3feb20aa85"
+  digest = "1:8c19432f8a511558f1f6e2d4800221f1bb20f47469a5ba4abc66921ab6c98bc2"
   name = "github.com/vicanso/cookies"
   packages = ["."]
   pruneopts = "UT"
-  revision = "846aea265a4b7ef3f14e85cedaa08404da4b6276"
-  version = "0.0.2"
+  revision = "79cf05ec78f0cf73a112f22392139f454c5bbf39"
+  version = "0.1.0"
 
 [[projects]]
-  digest = "1:e759bd83c7fc27e37dea6c0840012506bda8192ae33415ad4011c53ecb76d1a2"
+  digest = "1:edd4fcee8a9dfb437f500720543eaf419f3976806d94fbfa29d46dfa3f4740e1"
   name = "github.com/vicanso/keygrip"
   packages = ["."]
   pruneopts = "UT"
-  revision = "c7f2aa0ccee39d13ad838e4d619997b0aa401f43"
-  version = "0.0.1"
+  revision = "0c49b10eb9a3766a6f4878c5dbe0a01db4edf2af"
+  version = "0.0.2"
 
 [solve-meta]
   analyzer-name = "dep"

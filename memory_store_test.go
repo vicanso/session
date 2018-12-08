@@ -7,7 +7,7 @@ import (
 )
 
 func TestMemoryStore(t *testing.T) {
-	key := generateID("")
+	key := generateID()
 	data := []byte("tree.xie")
 	ttl := 300
 	ms, _ := NewMemoryStore(1024)

@@ -16,39 +16,37 @@ Create a cookie instance
 - `opts.MaxAge` the max age for session data(seconds)
 - `opts.Store` the session store
 - `opts.GenID` function to generate session id(cookie's value), if not set, it will use `ulid`.
-- `opts.CookiePrefix` add the prefix to the cookie value 
-- `opts.CookieKeys` key list for keygrip
-- `opts.CookiePath` cookie's path
-- `opts.CookieDomain` cookie's domain 
-- `opts.CookieExpires` cookie's expires
-- `opts.CookieMaxAge` cookie's max age
-- `opts.CookieSecure` cookie's secure
-- `opts.CookieHttpOnly` cookie's http only
-
+- `opts.CookieOptions` cookies.Options
 
 ```go
-store := NewRedisStore(nil, &redis.Options{
+store := session.NewRedisStore(nil, &redis.Options{
   Addr: "localhost:6379",
 })
 r := httptest.NewRequest(http.MethodGet, "http://aslant.site/api/users/me", nil)
 w := httptest.NewRecorder()
-sess := New(r, w, &Options{
+rw := cookies.NewHTTPReadWriter(r, w)
+sess := session.New(rw, &Options{
   Store: store,
-  CookieKeys: []string{
-    "tree.xie",
-  }
+  CookieOptions: &cookies.Options{
+    Keys: []string{
+      "tree.xie",
+    },
+  },
 })
 ```
 
 ```go
-store, _ := NewMemoryStore(10240)
+store, _ := session.NewMemoryStore(10240)
 r := httptest.NewRequest(http.MethodGet, "http://aslant.site/api/users/me", nil)
 w := httptest.NewRecorder()
-sess := New(r, w, &Options{
+rw := cookies.NewHTTPReadWriter(r, w)
+sess := session.New(rw, &Options{
   Store: store,
-  CookieKeys: []string{
-    "tree.xie",
-  }
+  CookieOptions: &cookies.Options{
+    Keys: []string{
+      "tree.xie",
+    },
+  },
 })
 ```
 
@@ -160,15 +158,18 @@ Commit the data to store when it's be modified.
 If the first time create session, it will set the cookie for session.
 
 ```go
-store := NewRedisStore(nil, &redis.Options{
+store := session.NewRedisStore(nil, &redis.Options{
   Addr: "localhost:6379",
 })
 r := httptest.NewRequest(http.MethodGet, "http://aslant.site/api/users/me", nil)
 w := httptest.NewRecorder()
-sess := New(r, w, &Options{
-  Store:      store,
-  CookieKeys: []string{
-    "tree.xie",
+rw := cookies.NewHTTPReadWriter(r, w)
+sess := session.New(rw, &Options{
+  Store: store,
+  CookieOptions: &cookies.Options{
+    Keys: []string{
+      "tree.xie",
+    },
   },
 })
 _, err := sess.Fetch()

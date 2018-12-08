@@ -16,4 +16,4 @@ install:
 
 script:
   - dep ensure
-  - go test -race -cover -v ./...
+  - make test
