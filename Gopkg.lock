@@ -70,12 +70,12 @@
   version = "v1.3.0"
 
 [[projects]]
-  digest = "1:8c19432f8a511558f1f6e2d4800221f1bb20f47469a5ba4abc66921ab6c98bc2"
+  digest = "1:82411a017fe834302d96d068a2f6df3f0ecb23e83282040586450525f2229937"
   name = "github.com/vicanso/cookies"
   packages = ["."]
   pruneopts = "UT"
-  revision = "79cf05ec78f0cf73a112f22392139f454c5bbf39"
-  version = "0.1.0"
+  revision = "221dc843b7434d26ba95480ebd9eb2d7d77a1078"
+  version = "0.2.0"
 
 [[projects]]
   digest = "1:edd4fcee8a9dfb437f500720543eaf419f3976806d94fbfa29d46dfa3f4740e1"
