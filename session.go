@@ -1,12 +1,11 @@
 package session
 
 import (
+	"encoding/json"
 	"errors"
 	"math/rand"
 	"time"
 
-	jsoniter "github.com/json-iterator/go"
-	"github.com/oklog/ulid"
 	"github.com/spf13/cast"
 	"github.com/vicanso/cookies"
 )
@@ -20,7 +19,6 @@ const (
 )
 
 var (
-	json = jsoniter.ConfigCompatibleWithStandardLibrary
 	// ErrNotFetched not fetch error
 	ErrNotFetched = errors.New("Not fetch session")
 )
@@ -37,6 +35,11 @@ type (
 		// Destroy remove the session data
 		Destroy(string) error
 	}
+	// JSON json Unmarshal/Marshal
+	JSON interface {
+		Unmarshal([]byte, interface{}) error
+		Marshal(interface{}) ([]byte, error)
+	}
 	// Options new session options
 	Options struct {
 		// cookie key, default is sess
@@ -48,6 +51,8 @@ type (
 		// function to generate session id
 		GenID         func() string
 		CookieOptions *cookies.Options
+		// JSON json Unmarshal/Marshal interface
+		JSON JSON
 	}
 	// Session session struct
 	Session struct {
@@ -62,8 +67,8 @@ type (
 		fetched bool
 		// the data has been modified
 		modified bool
-		// the sesion has been commited
-		commited bool
+		// the session has been committed
+		committed bool
 	}
 )
 
@@ -76,8 +81,8 @@ func Mock(data M) *Session {
 			sess.fetched = v.(bool)
 		case "modified":
 			sess.modified = v.(bool)
-		case "commited":
-			sess.commited = v.(bool)
+		case "committed":
+			sess.committed = v.(bool)
 		case "signed":
 			sess.signed = v.(bool)
 		case "cookieValue":
@@ -89,11 +94,10 @@ func Mock(data M) *Session {
 	return sess
 }
 
-func getInitJSON() []byte {
-	m := M{}
+func getInitMap() M {
+	m := make(M)
 	m[CreatedAt] = time.Now().Format(time.RFC3339)
-	buf, _ := json.Marshal(&m)
-	return buf
+	return m
 }
 
 // getCookieName get the cookie's name
@@ -130,11 +134,16 @@ func (sess *Session) Fetch() (m M, err error) {
 			return
 		}
 	}
-	if len(buf) == 0 {
-		buf = getInitJSON()
-	}
 	m = make(M)
-	err = json.Unmarshal(buf, &m)
+	unmarshal := json.Unmarshal
+	if opts.JSON != nil {
+		unmarshal = opts.JSON.Unmarshal
+	}
+	if len(buf) == 0 {
+		m = getInitMap()
+	} else {
+		err = unmarshal(buf, &m)
+	}
 	if err != nil {
 		return
 	}
@@ -154,12 +163,7 @@ func (sess *Session) Destroy() (err error) {
 	if err != nil {
 		return
 	}
-	buf := getInitJSON()
-	m := make(M)
-	err = json.Unmarshal(buf, &m)
-	if err != nil {
-		return
-	}
+	m := getInitMap()
 	sess.data = m
 	return
 }
@@ -291,7 +295,7 @@ func (sess *Session) GetUpdatedAt() string {
 
 // Commit sync the session to store
 func (sess *Session) Commit() (err error) {
-	if !sess.modified || sess.commited {
+	if !sess.modified || sess.committed {
 		return
 	}
 	opts := sess.opts
@@ -299,7 +303,11 @@ func (sess *Session) Commit() (err error) {
 	if sess.cookieValue == "" {
 		sess.RegenerateCookie()
 	}
-	buf, err := json.Marshal(sess.data)
+	marshal := json.Marshal
+	if opts.JSON != nil {
+		marshal = opts.JSON.Marshal
+	}
+	buf, err := marshal(sess.data)
 	if err != nil {
 		return
 	}
@@ -307,13 +315,13 @@ func (sess *Session) Commit() (err error) {
 	if err != nil {
 		return
 	}
-	sess.commited = true
+	sess.committed = true
 	return
 }
 
 // RegenerateCookie regenerate the session's cookie
 func (sess *Session) RegenerateCookie() {
-	if sess.commited {
+	if sess.committed {
 		return
 	}
 	opts := sess.opts
@@ -338,11 +346,15 @@ func (sess *Session) GetData() M {
 	return sess.data
 }
 
+var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+
 // generateID gen id
 func generateID() string {
-	t := time.Now()
-	entropy := rand.New(rand.NewSource(t.UnixNano()))
-	return ulid.MustNew(ulid.Timestamp(t), entropy).String()
+	b := make([]rune, 24)
+	for i := range b {
+		b[i] = letterRunes[rand.Intn(len(letterRunes))]
+	}
+	return string(b)
 }
 
 // New create a session instance

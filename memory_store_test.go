@@ -2,7 +2,6 @@ package session
 
 import (
 	"bytes"
-	"fmt"
 	"testing"
 )
 
@@ -69,7 +68,6 @@ func TestMemoryStore(t *testing.T) {
 		if err != nil {
 			t.Fatalf("get data fail after set, %v", err)
 		}
-		fmt.Println(buf)
 		if len(buf) != 0 {
 			t.Fatalf("expired data should be nil")
 		}

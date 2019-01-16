@@ -1,7 +1,7 @@
 package session
 
 import (
-	"fmt"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -64,7 +64,7 @@ func TestSession(t *testing.T) {
 			t.Fatalf("get session fail, %v", err)
 		}
 		if data["name"].(string) != myName {
-			fmt.Println("get session data fail")
+			t.Fatalf("get session data fail")
 		}
 		// fetch again
 		data, err = sess.Fetch()
@@ -72,7 +72,7 @@ func TestSession(t *testing.T) {
 			t.Fatalf("get session fail, %v", err)
 		}
 		if data["name"].(string) != myName {
-			fmt.Println("get session data again fail")
+			t.Fatalf("get session data again fail")
 		}
 	})
 
@@ -443,7 +443,7 @@ func TestSession(t *testing.T) {
 		m := make(M)
 		m["fetched"] = true
 		m["modified"] = true
-		m["commited"] = true
+		m["committed"] = true
 		m["signed"] = true
 		m["cookieValue"] = "a"
 		data := M{}
@@ -452,7 +452,7 @@ func TestSession(t *testing.T) {
 		sess := Mock(m)
 		if !sess.fetched ||
 			!sess.modified ||
-			!sess.commited ||
+			!sess.committed ||
 			!sess.signed ||
 			sess.cookieValue != "a" ||
 			sess.data == nil {
